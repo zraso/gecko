@@ -28,7 +28,6 @@ class DbpediaRequest
     def self.run_query(query, variable)
       response = HTTParty.get(DBPEDIA_SPARQL, query: { query: query, format: 'json'})
       return [] unless response.success?
-
       results = JSON.parse(response.body)['results']['bindings']
       results.map { |result| result[variable]['value'].split('/').last.gsub('-', ' ') }
     end

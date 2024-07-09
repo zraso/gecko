@@ -1,6 +1,6 @@
 require 'json'
 require 'sinatra'
-require_relative 'dbpedia_query'
+require_relative 'dbpedia_request'
 
 class FilmService < Sinatra::Base
   set :port, 9292
