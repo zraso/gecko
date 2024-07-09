@@ -24,4 +24,10 @@ RSpec.describe 'Film Service' do
 		expect(last_response).to be_ok
 		expect(JSON.parse(last_response.body)).to eq({"actors" => ["Ashley Laurence","Clare Higgins","Andrew Robinson"]})
 	end
+
+	it "returns a 400 error for invalid parameters" do
+    get '/'
+    expect(last_response.status).to eq(400)
+    expect(JSON.parse(last_response.body)).to eq({"error" => "Invalid parameters"})
+  end
 end
