@@ -3,6 +3,7 @@
 # Process
 1. Set up
 2. Break down tests
+3. Seperate dbpedia_query so that if we need to add more queries later, can do this and import easily
 
 # Tests
 
