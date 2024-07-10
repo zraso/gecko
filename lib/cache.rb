@@ -2,7 +2,7 @@ require 'pstore'
 require 'json'
 
 class Cache
-  def initialize(file_path: 'cache.store')
+  def initialize(file_path: '/tmp/cache.store')
     @store = PStore.new(file_path)
   end
 
