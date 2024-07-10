@@ -1,6 +1,5 @@
 require 'rspec'
 require 'rack/test'
-require_relative '../app'
 
 ENV['RACK_ENV'] = 'test'
 
@@ -11,20 +10,21 @@ RSpec.describe 'Film Service' do
 		FilmService
 	end
 
-  let(:actor) { "Tom_Hanks" }
-  let(:films) { ["Forrest Gump", "Cast Away"] }
+  let(:actor) { "Macauley_Culkin" }
+  let(:films) { ["Home Alone", "Richie Rich"] }
   let(:expected_response) { { "films" => films } }
 
-  before(:each) do
-    # Clear cache before each test
-    CacheSingleton.instance.store(actor, nil)
-  end
+  let(:film) { "Hellraiser" }
+  let(:actors) { ["Ashley Laurence", "Clare Higgins", "Andrew Robinson"] }
+  let(:expected_response_actors) { { "actors" => actors } }
 
-  let(:cache_file) { 'test_cache.store' }
+  before(:each) do
+    CacheSingleton.instance.store(actor, nil)
+    CacheSingleton.instance.store(film, nil)
+  end
 
 	context "films for an actor" do
 		it "returns a list of films for an actor" do
-	
 			allow(CacheSingleton.instance).to receive(:fetch).with(actor).and_return(nil)
 			allow(CacheSingleton.instance).to receive(:store).with(actor, anything)
 			allow(DbpediaRequest).to receive(:find_films_by_actor).with(actor).and_return(films)
@@ -37,21 +37,21 @@ RSpec.describe 'Film Service' do
     it "caches the film list" do
 			allow(DbpediaRequest).to receive(:find_films_by_actor).with(actor).and_return(films)
   
-      # Ensure cache is empty initially
+      # Cache is empty
       expect(CacheSingleton.instance.fetch(actor)).to be_nil
   
-      # First request to store in cache
+      # Store in cache
       get '/', actor: actor
 			expect(last_response).to be_ok
 			expect(JSON.parse(last_response.body)).to eq(expected_response)
   
-      # Ensure data is stored in cache
+      # Data is stored
       expect(CacheSingleton.instance.fetch(actor)).to eq(films)
   
-      # Mocking cache fetch to return the film list
+      # Check cache
       allow(CacheSingleton.instance).to receive(:fetch).with(actor).and_return(films)
   
-      # Second request to fetch from cache
+      # Fetch from cache
       get '/', actor: actor
 			expect(last_response).to be_ok
 			expect(JSON.parse(last_response.body)).to eq(expected_response)
@@ -60,16 +60,37 @@ RSpec.describe 'Film Service' do
 
 	context "actors in a film" do
 		it "returns a list of actors in a film" do
-			film = "Hellraiser"
-	
-			allow_any_instance_of(Cache).to receive(:fetch).with(film).and_return(nil)
-			allow_any_instance_of(Cache).to receive(:store).with(film, anything)
-			allow(DbpediaRequest).to receive(:find_actors_by_film).with(film).and_return(["Ashley Laurence","Clare Higgins","Andrew Robinson"])
+			allow(CacheSingleton.instance).to receive(:fetch).with(film).and_return(nil)
+			allow(CacheSingleton.instance).to receive(:store).with(film, anything)
+			allow(DbpediaRequest).to receive(:find_actors_by_film).with(film).and_return(actors)
 
 			get '/', film: film
 			expect(last_response).to be_ok
-			expect(JSON.parse(last_response.body)).to eq({"actors" => ["Ashley Laurence","Clare Higgins","Andrew Robinson"]})
+			expect(JSON.parse(last_response.body)).to eq(expected_response_actors)
 		end
+
+    it "caches the actors list" do
+      allow(DbpediaRequest).to receive(:find_actors_by_film).with(film).and_return(actors)
+
+      # Cache is empty
+      expect(CacheSingleton.instance.fetch(film)).to be_nil
+
+      # Store in cache
+      get '/', film: film
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to eq(expected_response_actors)
+
+      # Data is stored
+      expect(CacheSingleton.instance.fetch(film)).to eq(actors)
+
+      # Check cache
+      expect(CacheSingleton.instance.fetch(film)).to eq(actors)
+
+      # Fetch from catch
+      get '/', film: film
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to eq(expected_response_actors)
+    end
 	end
 
 	it "returns a 400 error for invalid parameters" do
