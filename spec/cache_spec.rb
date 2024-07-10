@@ -1,9 +1,8 @@
 require 'rspec'
 require 'pstore'
-require_relative '../cache'
 
 RSpec.describe Cache do
-  let(:cache_file) { 'test_cache.pstore' }
+  let(:cache_file) { 'test_cache.store' }
   let(:cache) { Cache.new(file_path: cache_file) }
   let(:key) { 'test_key' }
   let(:value) { 'test_value' }

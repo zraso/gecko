@@ -18,12 +18,3 @@ class Cache
     end
   end
 end
-
-# Singleton pattern to ensure only one cache instance
-class CacheSingleton
-  @instance = Cache.new
-
-  def self.instance
-    @instance
-  end
-end
