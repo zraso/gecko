@@ -11,13 +11,15 @@ class FilmService < Sinatra::Base
 
   get '/' do
     if params[:actor]
-        actor = params[:actor]
-        result = DbpediaRequest.find_films_by_actor(actor)
-        { films: result }.to_json
+      actor = params['actor']
+      films = CacheSingleton.instance.fetch(actor) || DbpediaRequest.find_films_by_actor(actor)
+      CacheSingleton.instance.store(actor, films) if CacheSingleton.instance.fetch(actor).nil?
+      { films: films }.to_json
     elsif params[:film]
-        film = params[:film]
-        result = DbpediaRequest.find_actors_by_film(film)
-        { actors: result }.to_json
+      film = params['film']
+      actors = CacheSingleton.instance.fetch(film) || DbpediaRequest.find_actors_by_film(film)
+      CacheSingleton.instance.store(film, actors) if CacheSingleton.instance.fetch(film).nil?
+      { actors: actors }.to_json
     else
         halt 400, { error: 'Invalid parameters' }.to_json
     end

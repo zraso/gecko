@@ -13,7 +13,6 @@
 - either 'actor' or 'film'
     curl localhost:9292?actor=Macaulay_Culkin
     curl localhost:9292?film=Hellraiser
-* JSON-formatted data
 * DBpedia
 - Only queries once for the same query, during one session. Otherwise, it should store it. Maybe key / value store?
 * SPARQL
