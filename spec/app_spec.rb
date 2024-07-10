@@ -56,6 +56,17 @@ RSpec.describe 'Film Service' do
 			expect(last_response).to be_ok
 			expect(JSON.parse(last_response.body)).to eq(expected_response)
     end
+
+    it "returns JSON format" do
+      allow(CacheSingleton.instance).to receive(:fetch).with(actor).and_return(nil)
+      allow(CacheSingleton.instance).to receive(:store).with(actor, anything)
+      allow(DbpediaRequest).to receive(:find_films_by_actor).with(actor).and_return(films)
+
+      get '/', actor: actor
+      expect(last_response).to be_ok
+      expect(last_response.headers['Content-Type']).to eq('application/json')
+      expect { JSON.parse(last_response.body) }.not_to raise_error
+    end
 	end
 
 	context "actors in a film" do
@@ -90,6 +101,17 @@ RSpec.describe 'Film Service' do
       get '/', film: film
       expect(last_response).to be_ok
       expect(JSON.parse(last_response.body)).to eq(expected_response_actors)
+    end
+
+    it "returns JSON format" do
+      allow(CacheSingleton.instance).to receive(:fetch).with(film).and_return(nil)
+      allow(CacheSingleton.instance).to receive(:store).with(film, anything)
+      allow(DbpediaRequest).to receive(:find_actors_by_film).with(film).and_return(actors)
+
+      get '/', film: film
+      expect(last_response).to be_ok
+      expect(last_response.headers['Content-Type']).to eq('application/json')
+      expect { JSON.parse(last_response.body) }.not_to raise_error
     end
 	end
 
